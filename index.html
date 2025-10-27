@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KITE AI QUIZ</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:'Orbitron',sans-serif;
+      background:radial-gradient(circle at top left,#0d0d0d,#000);
+      color:#e0faff;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+      text-align:center;
+    }
+    .container{
+      background:linear-gradient(145deg,#0a0a0a,#111);
+      border:1px solid #00fff2;
+      padding:30px;
+      border-radius:15px;
+      width:90%;
+      max-width:600px;
+      box-shadow:0 0 25px rgba(0,255,255,0.2);
+    }
+    h1{color:#00fff2;margin-bottom:20px;}
+    .question{font-size:20px;margin-bottom:15px;}
+    .options{display:flex;flex-direction:column;gap:10px;}
+    button{
+      background:#0d0d0d;
+      color:#00fff2;
+      border:1px solid #00fff2;
+      border-radius:8px;
+      padding:10px;
+      cursor:pointer;
+      transition:all 0.3s;
+      font-size:15px;
+    }
+    button:hover{background:#00fff2;color:#000;}
+    #next-btn{
+      margin-top:20px;
+      display:none;
+      background:linear-gradient(90deg,#00fff2,#0099ff);
+      color:#000;
+      border:none;
+    }
+    .fade{animation:fadeIn 0.5s;}
+    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+    .result{font-size:20px;margin-top:20px;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🤖 KITE AI QUIZ</h1>
+    <div id="quiz">
+      <div class="question" id="question"></div>
+      <div class="options" id="options"></div>
+      <button id="next-btn">Next</button>
+      <div class="result" id="result"></div>
+    </div>
+  </div>
+
+  <script>
+    const quizData=[
+      {q:"What is Kite AI mainly used for?",o:["Making videos","Helping programmers write code","Editing photos","Playing music"],a:1},
+      {q:"Who is the CEO of Kite AI?",o:["Chi Zhang","Elon Musk","Sam Altman","Bill Gates"],a:0},
+      {q:"What does Kite AI provide while you code?",o:["Code suggestions","Video tutorials","Social media updates","News"],a:0},
+      {q:"Which language does Kite AI focus on most?",o:["Python","Java","HTML","Ruby"],a:0},
+      {q:"Which company created Kite AI?",o:["Kite Inc.","OpenAI","Google","Microsoft"],a:0},
+      {q:"Which editors does Kite AI integrate with?",o:["VS Code and PyCharm","Photoshop","Word","Notepad"],a:0},
+      {q:"Main benefit of Kite AI?",o:["Speeds up coding","Plays music","Creates websites","Tests apps"],a:0},
+      {q:"Where does Kite AI process data?",o:["Locally on your computer","Social media","Only in cloud","Gaming servers"],a:0},
+      {q:"When was Kite AI founded?",o:["2014","2018","2020","2016"],a:3},
+      {q:"Kite AI’s main mission?",o:["Help developers code faster","Replace developers","Make games","Sell hardware"],a:0}
+    ];
+
+    let index=0,score=0;
+    const questionEl=document.getElementById('question');
+    const optionsEl=document.getElementById('options');
+    const nextBtn=document.getElementById('next-btn');
+    const resultEl=document.getElementById('result');
+
+    const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    function playTap(){
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type='sine';o.frequency.value=900;g.gain.value=0.05;
+      o.connect(g);g.connect(audioCtx.destination);
+      o.start();o.stop(audioCtx.currentTime+0.15);
+    }
+
+    function loadQuestion(){
+      const q=quizData[index];
+      questionEl.textContent=q.q;
+      optionsEl.innerHTML='';
+      q.o.forEach((opt,i)=>{
+        const btn=document.createElement('button');
+        btn.textContent=opt;
+        btn.onclick=()=>selectAnswer(i,btn);
+        optionsEl.appendChild(btn);
+      });
+      nextBtn.style.display='none';
+      resultEl.textContent='';
+    }
+
+    function selectAnswer(i,btn){
+      playTap();
+      const correct=quizData[index].a;
+      if(i===correct){score++;}
+      Array.from(optionsEl.children).forEach(b=>b.disabled=true);
+      btn.style.background=i===correct?'#00fff2':'#ff0066';
+      btn.style.color=i===correct?'#000':'#fff';
+      nextBtn.style.display='inline-block';
+    }
+
+    nextBtn.onclick=()=>{
+      playTap();
+      index++;
+      if(index<quizData.length){loadQuestion();}
+      else{showResult();}
+    };
+
+    function showResult(){
+      optionsEl.innerHTML='';
+      questionEl.textContent='';
+      nextBtn.style.display='none';
+      if(score>=7){resultEl.textContent=`🎉 Congratulations! You got ${score}/${quizData.length} correct!`;}
+      else if(score<=3){resultEl.textContent=`👍 Nice try! You got ${score}/${quizData.length} correct.`;}
+      else{resultEl.textContent=`You scored ${score}/${quizData.length}. Great effort!`;}
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
